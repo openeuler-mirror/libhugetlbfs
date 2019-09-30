@@ -1,0 +1,42 @@
+diff -Naur libhugetlbfs-2.16/elflink.c libhugetlbfs-2.16.new//elflink.c
+--- libhugetlbfs-2.16/elflink.c	2017-11-09 20:30:38.000000000 -0500
++++ libhugetlbfs-2.16.new//elflink.c	2017-11-09 22:36:56.000000000 -0500
+@@ -1131,7 +1131,10 @@
+ 		start = ALIGN_DOWN((unsigned long)seg[i].vaddr, hpage_size);
+ 		offset = (unsigned long)(seg[i].vaddr - start);
+ 		mapsize = ALIGN(offset + seg[i].memsz, hpage_size);
+-		mmap_flags = MAP_SHARED|MAP_FIXED;
++		if(__hugetlb_opts.share_mapping)
++				mmap_flags = MAP_SHARED|MAP_FIXED;
++		else
++				mmap_flags = MAP_PRIVATE|MAP_FIXED;
+ 
+ 		/* If requested, make no reservations */
+ 		if (__hugetlb_opts.no_reserve)
+diff -Naur libhugetlbfs-2.16/hugeutils.c libhugetlbfs-2.16.new//hugeutils.c
+--- libhugetlbfs-2.16/hugeutils.c	2013-03-09 21:59:52.000000000 -0500
++++ libhugetlbfs-2.16.new//hugeutils.c	2017-11-09 22:36:45.000000000 -0500
+@@ -387,6 +387,12 @@
+ 	env = getenv("HUGETLB_NO_RESERVE");
+ 	if (env && !strcasecmp(env, "yes"))
+ 		__hugetlb_opts.no_reserve = true;
++
++	/* Determine if data segment share memory mapping */
++	__hugetlb_opts.share_mapping = false;
++	env = getenv("HUGETLB_SHAREMAPPING");
++	if (env && !strcasecmp(env, "yes"))
++		__hugetlb_opts.share_mapping = true;
+ }
+ 
+ void hugetlbfs_setup_kernel_page_size()
+diff -Naur libhugetlbfs-2.16/libhugetlbfs_internal.h libhugetlbfs-2.16.new//libhugetlbfs_internal.h
+--- libhugetlbfs-2.16/libhugetlbfs_internal.h	2013-03-09 21:59:52.000000000 -0500
++++ libhugetlbfs-2.16.new//libhugetlbfs_internal.h	2017-11-09 22:35:53.000000000 -0500
+@@ -73,6 +73,7 @@
+ 	char		*def_page_size;
+ 	char		*morecore;
+ 	char		*heapbase;
++	bool		share_mapping;
+ };
+ 
+ /*

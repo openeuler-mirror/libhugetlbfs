@@ -1,0 +1,65 @@
+From e1c5a625a5d82aed84fdd5db0643fb865d21b5bf Mon Sep 17 00:00:00 2001
+From: lihongjiang <lihongjiang6@huawei.com>
+Date: Mon, 22 Apr 2019 22:11:55 +0800
+Subject: [PATCH] libhugetlbfs: fix tests with heapshrink fail
+
+reason:fix tests with heapshrink fail
+
+Signed-off-by: lihongjiang <lihongjiang6@huawei.com>
+---
+ tests/heapshrink.c | 12 +++++++++---
+ tests/run_tests.py |  2 +-
+ 2 files changed, 10 insertions(+), 4 deletions(-)
+
+diff --git a/tests/heapshrink.c b/tests/heapshrink.c
+index 0644c78..bd2e62b 100644
+--- a/tests/heapshrink.c
++++ b/tests/heapshrink.c
+@@ -34,7 +34,7 @@
+ 
+ int main(int argc, char **argv)
+ {
+-	int is_huge, have_env, shrink_ok, have_helper;
++	int is_huge, have_env, shrink_ok, have_helper, tcache_enabled;
+ 	unsigned long long mapping_size;
+ 	void *p;
+ 
+@@ -45,6 +45,8 @@ int main(int argc, char **argv)
+ 	p = getenv("LD_PRELOAD");
+ 	have_helper = p != NULL && strstr(p, "heapshrink") != NULL;
+ 
++	p=getenv("GLIBC_TUNABLES");
++	tcache_enabled = p != NULL && strstr(p, "malloc.tcache_count=0");
+ 	p = malloc(SIZE);
+ 	if (!p) {
+ 		if (shrink_ok && have_helper) {
+@@ -68,7 +70,11 @@ int main(int argc, char **argv)
+ 
+ 	free(p);
+ 	mapping_size = get_mapping_page_size(p+SIZE-1);
+-	if (shrink_ok && mapping_size > MIN_PAGE_SIZE)
+-		FAIL("Heap did not shrink");
++	if (shrink_ok && mapping_size > MIN_PAGE_SIZE) {
++		if (tcache_enabled)
++			FAIL("Heap did not shrink");
++		else
++			FAIL("Heap didn't shrink. Check malloc.tcache_count=0");
++	}
+ 	PASS();
+ }
+diff --git a/tests/run_tests.py b/tests/run_tests.py
+index 22e74c8..8cc6d43 100755
+--- a/tests/run_tests.py
++++ b/tests/run_tests.py
+@@ -575,7 +575,7 @@ def functional_tests():
+             HUGETLB_MORECORE="yes")
+     do_test("heapshrink", LD_PRELOAD="libheapshrink.so", HUGETLB_MORECORE="yes",
+             HUGETLB_MORECORE_SHRINK="yes")
+-    do_test("heapshrink", LD_PRELOAD="libhugetlbfs.so libheapshrink.so",
++    do_test("heapshrink", GLIBC_TUNABLES="glibc.malloc.tcache_count=0", LD_PRELOAD="libhugetlbfs.so libheapshrink.so",
+             HUGETLB_MORECORE="yes", HUGETLB_MORECORE_SHRINK="yes")
+     do_test("heap-overflow", HUGETLB_VERBOSE="1", HUGETLB_MORECORE="yes")
+ 
+-- 
+1.8.3.1
+

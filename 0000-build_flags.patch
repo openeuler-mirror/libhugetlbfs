@@ -1,0 +1,13 @@
+--- libhugetlbfs-2.20/tests/Makefile	2018-04-10 02:00:33.613966578 +0200
++++ libhugetlbfs-2.20/tests/Makefile	2015-12-04 03:04:07.000000000 +0100
+@@ -33,8 +33,8 @@
+ HELPER_LIBS = libheapshrink.so
+ BADTOOLCHAIN = bad-toolchain.sh
+ 
+-CFLAGS = -O2 -Wall -g
+-CPPFLAGS = -I..
++CFLAGS ?= -O2 -Wall -g
++CPPFLAGS += -I..
+ STATIC_LIBHUGE = -Wl,--whole-archive -lhugetlbfs -Wl,--no-whole-archive
+ STATIC_LDLIBS = -Wl,--no-as-needed -lpthread
+ LDLIBS = $(STATIC_LDLIBS) -ldl -lhugetlbfs_privutils

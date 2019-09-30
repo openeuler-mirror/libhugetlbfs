@@ -1,0 +1,13 @@
+diff --git a/Makefile b/Makefile
+index 73ebad7..3735440 100644
+--- a/Makefile
++++ b/Makefile
+@@ -30,7 +30,7 @@ INSTALL = install
+ LDFLAGS += -Wl,-z,noexecstack -ldl
+ CFLAGS ?= -O2 -g
+ CFLAGS += -Wall -fPIC
+-CPPFLAGS += -D__LIBHUGETLBFS__
++CPPFLAGS += -D__LIBHUGETLBFS__ -DFORTIFY_SOURCE
+ 
+ ARCH = $(shell uname -m | sed -e s/i.86/i386/)
+ CC ?= gcc

@@ -1,0 +1,31 @@
+From 7c371e7de53554166711e0bcc37df94d0a78edd3 Mon Sep 17 00:00:00 2001
+From: sangyan <sangyan@huawei.com>
+Date: Fri, 21 Apr 2017 14:35:03 +0800
+Subject: [PATCH] elflink.c: remap segments with MAP_SHARED flag
+
+Mmapping segment with MAP_PRIVATE will create a private
+copy-on-write mapping, as a result updates to the mapping
+will cost extra pages. It will cost double number of pages
+in the worst case, so we change to MAP_SHARED flag.
+
+It is also safe to mmap a unlinked file or a read-only file.
+---
+ elflink.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/elflink.c b/elflink.c
+index b746b26..8187ee0 100644
+--- a/elflink.c
++++ b/elflink.c
+@@ -1131,7 +1131,7 @@ static void remap_segments(struct seg_info *seg, int num)
+ 		start = ALIGN_DOWN((unsigned long)seg[i].vaddr, hpage_size);
+ 		offset = (unsigned long)(seg[i].vaddr - start);
+ 		mapsize = ALIGN(offset + seg[i].memsz, hpage_size);
+-		mmap_flags = MAP_PRIVATE|MAP_FIXED;
++		mmap_flags = MAP_SHARED|MAP_FIXED;
+ 
+ 		/* If requested, make no reservations */
+ 		if (__hugetlb_opts.no_reserve)
+-- 
+1.8.3.1
+
