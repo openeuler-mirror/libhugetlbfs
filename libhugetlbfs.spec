@@ -2,7 +2,7 @@
 
 Name: 		libhugetlbfs
 Version: 	2.20
-Release: 	13
+Release: 	14
 Summary: 	A library which provides easy access to huge pages of memory
 License: 	LGPLv2+
 URL: 		https://github.com/libhugetlbfs/libhugetlbfs
@@ -15,6 +15,7 @@ Patch0003: 	0003-fix-behavior-while-shrinking.patch
 Patch0004: 	0004-ld.hugetlbfs-pick-an-emulation-if-m-is-not-present.patch
 Patch0005: 	0005-ld.hugetlbfs-support-512M-hugepages-on-aarch64.patch
 Patch0006: 	0006-libhugetlbfs-fix-tests-with-heapshrink-fail.patch
+Patch0007:	0007-libhugetlbfs-2.20-change-scripts-to-py3.patch
 
 Patch9000:libhugetlbfs-2.16-remap_segments_with_MAP_SHARED.patch
 Patch9001:libhugetlbfs-2.16-remap_segments_with_MAP_SHARED-2.patch
@@ -89,6 +90,12 @@ touch $RPM_BUILD_ROOT%{_sysconfdir}/security/limits.d/hugepages.conf
 
 
 %changelog
+* Tue Feb 25 2020 lihongjiang<lihongjiang6@huawei.com> - 2.20-14
+- Type:enhancement
+- ID:NA
+- SUG:restart
+- DESC:change script from py2 to py3
+
 * Mon Dec 30 2019 lihongjiang<lihongjiang6@huawei.com> - 2.20-13
 - Type:enhancement
 - ID:NA

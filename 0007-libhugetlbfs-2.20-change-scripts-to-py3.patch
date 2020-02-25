@@ -1,26 +1,20 @@
-From 541d595fbe63e84ec9855c0945b4291e0d6104b1 Mon Sep 17 00:00:00 2001
+From ea54bafb9552a561f7dc746f5dec33cca62419f7 Mon Sep 17 00:00:00 2001
 From: lihongjiang <lihongjiang6@huawei.com>
-Date: Wed, 5 Feb 2020 11:22:38 +0000
-Subject: [PATCH] libhugetlbfs: change py2 scripts to py3
+Date: Tue, 25 Feb 2020 10:51:17 +0800
+Subject: [PATCH] change script from py2 to py3
 
 diff --git a/huge_page_setup_helper.py b/huge_page_setup_helper.py
-index 43c9916..46866e3 100755
+index 43c9916..a9ba2bf 100755
 --- a/huge_page_setup_helper.py
 +++ b/huge_page_setup_helper.py
-@@ -1,4 +1,4 @@
--#!/usr/bin/python
-+#!/usr/bin/python3
-
- #
- # Tool to set up Linux large page support with minimal effort
 @@ -14,13 +14,13 @@ debug = False
-
+ 
  # must be executed under the root to operate
  if os.geteuid() != 0:
 -    print "You must be root to setup hugepages!"
 +    print("You must be root to setup hugepages!")
      os._exit(1)
-
+ 
  # config files we need access to
  sysctlConf = "/etc/sysctl.conf"
  if not os.access(sysctlConf, os.W_OK):
@@ -28,28 +22,28 @@ index 43c9916..46866e3 100755
 +    print("Cannot access %s" % sysctlConf)
      if debug == False:
          os._exit(1)
-
+ 
 @@ -41,7 +41,7 @@ for line in hugeadmexplain:
          break
-
+ 
  if memTotal == 0:
 -    print "Your version of libhugetlbfs' hugeadm utility is too old!"
 +    print("Your version of libhugetlbfs' hugeadm utility is too old!")
      os._exit(1)
-
-
+ 
+ 
 @@ -54,7 +54,7 @@ for line in poolList:
          break
-
+ 
  if hugePageSize == 0:
 -    print "Aborting, cannot determine system huge page size!"
 +    print("Aborting, cannot determine system huge page size!")
      os._exit(1)
-
+ 
  # Get initial sysctl settings
 @@ -83,22 +83,22 @@ for line in groupNames:
-
-
+ 
+ 
  # dump system config as we see it before we start tweaking it
 -print "Current configuration:"
 -print " * Total System Memory......: %6d MB" % memTotal
@@ -69,8 +63,8 @@ index 43c9916..46866e3 100755
 +print(" * Remaining System Memory..: %6d MB" % (memTotal - (hugePages * hugePageSize / (1024 * 1024))))
 +print(" * Huge Page User Group.....:  %s (%d)" % (hugeGIDName, hugeGID))
 +print()
-
-
+ 
+ 
  # ask how memory they want to allocate for huge pages
  userIn = None
  while not userIn:
@@ -102,8 +96,8 @@ index 43c9916..46866e3 100755
 -print
 +print("Okay, we'll try to allocate %d MB for huge pages..." % userHugePageReqMB)
 +print()
-
-
+ 
+ 
  # some basic user input validation
 @@ -134,24 +134,24 @@ inputIsValid = False
  # ask for the name of the group allowed access to huge pages
@@ -132,12 +126,12 @@ index 43c9916..46866e3 100755
          inputIsValid = True
 -print "Okay, we'll give group %s access to the huge pages" % userGroupReq
 +print("Okay, we'll give group %s access to the huge pages" % userGroupReq)
-
-
+ 
+ 
  # see if group already exists, use it if it does, if not, create it
 @@ -163,20 +163,20 @@ for line in groupNames:
          break
-
+ 
  if userGIDReq > -1:
 -    print "Group %s (gid %d) already exists, we'll use it" % (userGroupReq, userGIDReq)
 +    print("Group %s (gid %d) already exists, we'll use it" % (userGroupReq, userGIDReq))
@@ -157,8 +151,8 @@ index 43c9916..46866e3 100755
 -print
 +    print("Created group %s (gid %d) for huge page use" % (userGroupReq, userGIDReq))
 +print()
-
-
+ 
+ 
  # basic user input validation, take 2
 @@ -186,20 +186,20 @@ inputIsValid = False
  # ask for user(s) that should be in the huge page access group
@@ -212,8 +206,8 @@ index 43c9916..46866e3 100755
 -print
 +            print("/usr/sbin/useradd %s -G %s" % (hugeUser, userGroupReq))
 +print()
-
-
+ 
+ 
  # set values for the current running environment
 @@ -238,11 +238,11 @@ if debug == False:
      os.popen("/usr/bin/hugeadm --set-shm-group %d" % userGIDReq)
@@ -229,7 +223,7 @@ index 43c9916..46866e3 100755
 +    print("/usr/bin/hugeadm --set-shm-group %d" % userGIDReq)
 +    print("/usr/bin/hugeadm --set-recommended-shmmax")
 +    print()
-
+ 
  # figure out what that shmmax value we just set was
  hugeadmexplain = os.popen("/usr/bin/hugeadm --explain 2>/dev/null").readlines()
 @@ -258,7 +258,7 @@ if debug == False:
@@ -240,10 +234,10 @@ index 43c9916..46866e3 100755
 +            print(("Saved original %s as %s.backup" % (sysctlConf, sysctlConf)))
          except:
              pass
-
+ 
 @@ -279,11 +279,11 @@ if debug == False:
      fd.close()
-
+ 
  else:
 -    print "Add to %s:" % sysctlConf
 -    print "kernel.shmmax = %d" % shmmax
@@ -255,8 +249,8 @@ index 43c9916..46866e3 100755
 +    print("vm.nr_hugepages = %d" % userHugePagesReq)
 +    print("vm.hugetlb_shm_group = %d" % userGIDReq)
 +    print()
-
-
+ 
+ 
  # write out limits.conf changes to persist across reboot
 @@ -293,7 +293,7 @@ if debug == False:
          try:
@@ -266,20 +260,20 @@ index 43c9916..46866e3 100755
 +            print(("Saved original %s as %s.backup" % (limitsConf, limitsConf)))
          except:
              pass
-
+ 
 @@ -319,25 +319,25 @@ if debug == False:
      fd.close()
-
+ 
  else:
 -    print "Add to %s:" % limitsConf
 +    print("Add to %s:" % limitsConf)
      for hugeUser in hugePageUserList:
--        print "%s              soft    memlock         %d" % (hugeUser, userHugePageReqKB)
--        print "%s              hard    memlock         %d" % (hugeUser, userHugePageReqKB)
-+        print("%s              soft    memlock         %d" % (hugeUser, userHugePageReqKB))
-+        print("%s              hard    memlock         %d" % (hugeUser, userHugePageReqKB))
-
-
+-        print "%s		soft	memlock		%d" % (hugeUser, userHugePageReqKB)
+-        print "%s		hard	memlock		%d" % (hugeUser, userHugePageReqKB)
++        print("%s		soft	memlock		%d" % (hugeUser, userHugePageReqKB))
++        print("%s		hard	memlock		%d" % (hugeUser, userHugePageReqKB))
+ 
+ 
  # dump the final configuration of things now that we're done tweaking
 -print
 -print "Final configuration:"
@@ -306,7 +300,7 @@ index 43c9916..46866e3 100755
 +print(" * Remaining System Memory..: %6d MB" % (memTotal - userHugePageReqMB))
 +print(" * Huge Page User Group.....:  %s (%d)" % (userGroupReq, userGIDReq))
 +print()
-
+ 
 -- 
 1.8.3.1
 
