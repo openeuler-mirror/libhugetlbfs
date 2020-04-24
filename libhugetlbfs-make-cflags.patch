@@ -2,12 +2,14 @@ diff --git a/Makefile b/Makefile
 index 73ebad7..3735440 100644
 --- a/Makefile
 +++ b/Makefile
-@@ -30,7 +30,7 @@ INSTALL = install
- LDFLAGS += -Wl,-z,noexecstack -ldl
+@@ -30,8 +30,8 @@ INSTALL = install
+
+ LDFLAGS += -ldl
  CFLAGS ?= -O2 -g
- CFLAGS += -Wall -fPIC
+-CFLAGS += -Wall -fPIC
 -CPPFLAGS += -D__LIBHUGETLBFS__
++CFLAGS += -Wall -fPIC -fstack-protector-strong
 +CPPFLAGS += -D__LIBHUGETLBFS__ -DFORTIFY_SOURCE
- 
- ARCH = $(shell uname -m | sed -e s/i.86/i386/)
+
+ ARCH ?= $(shell uname -m | sed -e s/i.86/i386/)
  CC ?= gcc
