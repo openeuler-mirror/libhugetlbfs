@@ -1,24 +1,18 @@
 %global ldscriptdir %{_datadir}/%{name}/ldscripts
 
 Name: 		libhugetlbfs
-Version: 	2.20
-Release: 	14
+Version: 	2.22
+Release: 	1
 Summary: 	A library which provides easy access to huge pages of memory
 License: 	LGPLv2+
 URL: 		https://github.com/libhugetlbfs/libhugetlbfs
 Source0: 	https://github.com/libhugetlbfs/libhugetlbfs/releases/download/%{version}/%{name}-%{version}.tar.gz
 
 Patch0000: 	0000-build_flags.patch
-Patch0001: 	0001-libhugetlbfs-2.15-fortify.patch
-Patch0002: 	0002-libhugetlbfs-2.16-makefile_cflags.patch
-Patch0003: 	0003-fix-behavior-while-shrinking.patch
-Patch0004: 	0004-ld.hugetlbfs-pick-an-emulation-if-m-is-not-present.patch
-Patch0005: 	0005-ld.hugetlbfs-support-512M-hugepages-on-aarch64.patch
-Patch0006: 	0006-libhugetlbfs-fix-tests-with-heapshrink-fail.patch
-Patch0007:	0007-libhugetlbfs-2.20-change-scripts-to-py3.patch
 
 Patch9000:libhugetlbfs-2.16-remap_segments_with_MAP_SHARED.patch
 Patch9001:libhugetlbfs-2.16-remap_segments_with_MAP_SHARED-2.patch
+Patch9002:libhugetlbfs-make-cflags.patch
 
 BuildRequires: 	gcc glibc-devel glibc-static
 
@@ -90,6 +84,12 @@ touch $RPM_BUILD_ROOT%{_sysconfdir}/security/limits.d/hugepages.conf
 
 
 %changelog
+* Fri Apr 24 2020 lihongjiang<lihongjiang6@huawei.com> - 2.22-1
+- Type:enhancement
+- ID:NA
+- SUG:restart
+- DESC:update version to 2.22
+
 * Tue Feb 25 2020 lihongjiang<lihongjiang6@huawei.com> - 2.20-14
 - Type:enhancement
 - ID:NA
