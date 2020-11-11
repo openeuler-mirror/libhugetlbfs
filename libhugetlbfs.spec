@@ -2,7 +2,7 @@
 
 Name: 		libhugetlbfs
 Version: 	2.22
-Release: 	1
+Release: 	2
 Summary: 	A library which provides easy access to huge pages of memory
 License: 	LGPLv2+
 URL: 		https://github.com/libhugetlbfs/libhugetlbfs
@@ -14,6 +14,7 @@ Patch9000:libhugetlbfs-2.16-remap_segments_with_MAP_SHARED.patch
 Patch9001:libhugetlbfs-2.16-remap_segments_with_MAP_SHARED-2.patch
 Patch9002:libhugetlbfs-make-cflags.patch
 
+Recommends:	%{name}-help = %{version}-%{release}
 BuildRequires: 	gcc glibc-devel glibc-static
 
 %description
@@ -84,6 +85,9 @@ touch $RPM_BUILD_ROOT%{_sysconfdir}/security/limits.d/hugepages.conf
 
 
 %changelog
+* Wed Nov 11 2020 xinghe <xinghe1@huawei.com> - 2.22-2
+- add help for Recommends
+
 * Fri Apr 24 2020 lihongjiang<lihongjiang6@huawei.com> - 2.22-1
 - Type:enhancement
 - ID:NA
