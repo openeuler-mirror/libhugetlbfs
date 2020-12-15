@@ -2,7 +2,7 @@
 
 Name: 		libhugetlbfs
 Version: 	2.22
-Release: 	1
+Release: 	2
 Summary: 	A library which provides easy access to huge pages of memory
 License: 	LGPLv2+
 URL: 		https://github.com/libhugetlbfs/libhugetlbfs
@@ -13,6 +13,7 @@ Patch0000: 	0000-build_flags.patch
 Patch9000:libhugetlbfs-2.16-remap_segments_with_MAP_SHARED.patch
 Patch9001:libhugetlbfs-2.16-remap_segments_with_MAP_SHARED-2.patch
 Patch9002:libhugetlbfs-make-cflags.patch
+Patch9003:libhugetlbfs-fix-max-segment-cannot-adopt-the-x86.patch
 
 BuildRequires: 	gcc glibc-devel glibc-static
 
@@ -84,6 +85,12 @@ touch $RPM_BUILD_ROOT%{_sysconfdir}/security/limits.d/hugepages.conf
 
 
 %changelog
+* Tue Dec 15 2020 wuxu<wuxu.wu@hotmail.com> - 2.22-2
+- Type:enhancement
+- ID:NA
+- SUG:restart
+- DESC: fix max segment cannot adopt the x86
+
 * Fri Apr 24 2020 lihongjiang<lihongjiang6@huawei.com> - 2.22-1
 - Type:enhancement
 - ID:NA
