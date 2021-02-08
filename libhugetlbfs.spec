@@ -2,7 +2,7 @@
 
 Name: 		libhugetlbfs
 Version: 	2.22
-Release: 	2
+Release: 	3
 Summary: 	A library which provides easy access to huge pages of memory
 License: 	LGPLv2+
 URL: 		https://github.com/libhugetlbfs/libhugetlbfs
@@ -84,6 +84,9 @@ touch $RPM_BUILD_ROOT%{_sysconfdir}/security/limits.d/hugepages.conf
 
 
 %changelog
+* Mon Feb 8 2021 xinghe <xinghe1@huawei.com> - 2.22-3
+- rebuild package
+
 * Mon Feb 8 2021 xinghe <xinghe1@huawei.com> - 2.22-2
 - rebuild package
 
