@@ -2,7 +2,7 @@
 
 Name: 		libhugetlbfs
 Version: 	2.22
-Release: 	1
+Release: 	8
 Summary: 	A library which provides easy access to huge pages of memory
 License: 	LGPLv2+
 URL: 		https://github.com/libhugetlbfs/libhugetlbfs
@@ -10,10 +10,12 @@ Source0: 	https://github.com/libhugetlbfs/libhugetlbfs/releases/download/%{versi
 
 Patch0000: 	0000-build_flags.patch
 
-Patch9000:libhugetlbfs-2.16-remap_segments_with_MAP_SHARED.patch
-Patch9001:libhugetlbfs-2.16-remap_segments_with_MAP_SHARED-2.patch
-Patch9002:libhugetlbfs-make-cflags.patch
+Patch9000:	libhugetlbfs-2.16-remap_segments_with_MAP_SHARED.patch
+Patch9001:	libhugetlbfs-2.16-remap_segments_with_MAP_SHARED-2.patch
+Patch9002:	libhugetlbfs-make-cflags.patch
+Patch9003:	libhugetlbfs-fix-max-segment-cannot-adopt-the-x86.patch
 
+Recommends:	%{name}-help = %{version}-%{release}
 BuildRequires: 	gcc glibc-devel glibc-static
 
 %description
@@ -84,6 +86,30 @@ touch $RPM_BUILD_ROOT%{_sysconfdir}/security/limits.d/hugepages.conf
 
 
 %changelog
+* Mon Feb 8 2021 xinghe <xinghe1@huawei.com> - 2.22-8
+- rebuild package
+
+* Mon Feb 8 2021 xinghe <xinghe1@huawei.com> - 2.22-7
+- rebuild package
+
+* Mon Feb 8 2021 xinghe <xinghe1@huawei.com> - 2.22-6
+- rebuild package
+
+* Mon Feb 8 2021 xinghe <xinghe1@huawei.com> - 2.22-5
+- rebuild package
+
+* Mon Feb 8 2021 xinghe <xinghe1@huawei.com> - 2.22-4
+- rebuild package
+
+* Tue Dec 15 2020 wuxu<wuxu.wu@hotmail.com> - 2.22-3
+- Type:enhancement
+- ID:NA
+- SUG:restart
+- DESC: fix max segment cannot adopt the x86
+
+* Wed Nov 11 2020 xinghe <xinghe1@huawei.com> - 2.22-2
+- add help for Recommends
+
 * Fri Apr 24 2020 lihongjiang<lihongjiang6@huawei.com> - 2.22-1
 - Type:enhancement
 - ID:NA
