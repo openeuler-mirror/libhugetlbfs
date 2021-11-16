@@ -1,19 +1,20 @@
 %global ldscriptdir %{_datadir}/%{name}/ldscripts
 
 Name: 		libhugetlbfs
-Version: 	2.22
-Release: 	2
+Version: 	2.23
+Release: 	1
 Summary: 	A library which provides easy access to huge pages of memory
 License: 	LGPLv2+
 URL: 		https://github.com/libhugetlbfs/libhugetlbfs
 Source0: 	https://github.com/libhugetlbfs/libhugetlbfs/releases/download/%{version}/%{name}-%{version}.tar.gz
 
-Patch0000: 	0000-build_flags.patch
+Patch0:	0000-build_flags.patch
+Patch1: Disable-hugepage-backed-malloc-if-__morecore-is-not-.patch
 
-Patch9000:libhugetlbfs-2.16-remap_segments_with_MAP_SHARED.patch
-Patch9001:libhugetlbfs-2.16-remap_segments_with_MAP_SHARED-2.patch
+#Patch9000:libhugetlbfs-2.16-remap_segments_with_MAP_SHARED.patch
+#Patch9001:libhugetlbfs-2.16-remap_segments_with_MAP_SHARED-2.patch
 Patch9002:libhugetlbfs-make-cflags.patch
-Patch9003:libhugetlbfs-fix-max-segment-cannot-adopt-the-x86.patch
+#Patch9003:libhugetlbfs-fix-max-segment-cannot-adopt-the-x86.patch
 
 BuildRequires: 	gcc glibc-devel glibc-static
 
@@ -85,6 +86,9 @@ touch $RPM_BUILD_ROOT%{_sysconfdir}/security/limits.d/hugepages.conf
 
 
 %changelog
+* Tue Nov 16 2021 Qingqing Li <liqingqing3@huawei.com> - 2.23-1
+- upgrade to 2.23
+
 * Tue Dec 15 2020 wuxu<wuxu.wu@hotmail.com> - 2.22-2
 - Type:enhancement
 - ID:NA
