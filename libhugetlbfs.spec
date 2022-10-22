@@ -2,7 +2,7 @@
 
 Name: 		libhugetlbfs
 Version: 	2.23
-Release: 	1
+Release: 	2
 Summary: 	A library which provides easy access to huge pages of memory
 License: 	LGPLv2+
 URL: 		https://github.com/libhugetlbfs/libhugetlbfs
@@ -10,6 +10,7 @@ Source0: 	https://github.com/libhugetlbfs/libhugetlbfs/releases/download/%{versi
 
 Patch0:	0000-build_flags.patch
 Patch1: Disable-hugepage-backed-malloc-if-__morecore-is-not-.patch
+Patch2: libhugetlbfs-2.23-sw.patch
 
 #Patch9000:libhugetlbfs-2.16-remap_segments_with_MAP_SHARED.patch
 #Patch9001:libhugetlbfs-2.16-remap_segments_with_MAP_SHARED-2.patch
@@ -86,6 +87,9 @@ touch $RPM_BUILD_ROOT%{_sysconfdir}/security/limits.d/hugepages.conf
 
 
 %changelog
+* Fri Oct 21 2022 wuzx<wuzx1226@qq.com> - 2.23-2
+- add sw64 patch
+
 * Tue Nov 16 2021 Qingqing Li <liqingqing3@huawei.com> - 2.23-1
 - upgrade to 2.23
 
