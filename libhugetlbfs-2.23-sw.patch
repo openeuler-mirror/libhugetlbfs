@@ -1,0 +1,118 @@
+diff -Naur libhugetlbfs-2.23.org/Makefile libhugetlbfs-2.23.sw/Makefile
+--- libhugetlbfs-2.23.org/Makefile	2022-03-14 06:37:11.798814120 +0000
++++ libhugetlbfs-2.23.sw/Makefile	2022-03-14 07:21:44.178814120 +0000
+@@ -63,6 +63,12 @@
+ ELF32 += armelf_linux_eabi
+ CUSTOM_LDSCRIPTS = no
+ else
++ifneq (,$(findstring sw_64,$(ARCH)))
++CC64 = $(CC)
++ELF64 = sw_64elf
++TMPLIB64 = lib
++CUSTOM_LDSCRIPTS = no
++else
+ ifneq (,$(findstring aarch64,$(ARCH)))
+ CC64 = $(CC)
+ ELF64 = aarch64elf
+@@ -121,6 +127,7 @@
+ endif
+ endif
+ endif
++endif
+ endif
+ endif
+ endif
+diff -Naur libhugetlbfs-2.23.org/ld.hugetlbfs libhugetlbfs-2.23.sw/ld.hugetlbfs
+--- libhugetlbfs-2.23.org/ld.hugetlbfs	2022-03-14 06:37:11.798814120 +0000
++++ libhugetlbfs-2.23.sw/ld.hugetlbfs	2022-03-14 06:45:05.998814120 +0000
+@@ -117,7 +117,7 @@
+ 	fi ;;
+ elf_i386|elf_x86_64)	HPAGE_SIZE=$((4*$MB)) SLICE_SIZE=$HPAGE_SIZE ;;
+ elf_s390|elf64_s390)	HPAGE_SIZE=$((1*$MB)) SLICE_SIZE=$HPAGE_SIZE ;;
+-armelf*_linux_eabi|aarch64elf*|aarch64linux*)
++armelf*_linux_eabi|aarch64elf*|aarch64linux*|sw_64elf*|sw_64linux*)
+ 	hpage_kb=$(cat /proc/meminfo  | grep Hugepagesize: | awk '{print $2}')
+ 	HPAGE_SIZE=$((hpage_kb * 1024))
+ 	SLICE_SIZE=$HPAGE_SIZE ;;
+@@ -130,7 +130,7 @@
+ 	# targeting the ARM platform one needs to explicitly set the text segment offset
+ 	# otherwise it will be NULL.
+ 	case "$EMU" in
+-	armelf*_linux_eabi|aarch64elf*|aarch64linux*)
++	armelf*_linux_eabi|aarch64elf*|aarch64linux*|sw_64elf*|sw_64linux*)
+ 		printf -v TEXTADDR "%x" "$SLICE_SIZE"
+ 		HTLBOPTS="$HTLBOPTS -Ttext-segment=$TEXTADDR" ;;
+ 	elf_i386)		HTLBOPTS="$HTLBOPTS -Ttext-segment=0x08000000" ;;
+diff -Naur libhugetlbfs-2.23.org/sys-sw_64elf.S libhugetlbfs-2.23.sw/sys-sw_64elf.S
+--- libhugetlbfs-2.23.org/sys-sw_64elf.S	1970-01-01 00:00:00.000000000 +0000
++++ libhugetlbfs-2.23.sw/sys-sw_64elf.S	2022-03-15 01:26:09.058814120 +0000
+@@ -0,0 +1,36 @@
++/*
++ * libhugetlbfs - Easy use of Linux hugepages
++ * Copyright (C) 2013 Linaro Ltd.
++ *
++ * This library is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public License
++ * version 2.1 as published by the Free Software Foundation.
++ *
++ * This library is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with this library; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
++ */
++
++        .text
++
++        .globl  direct_syscall
++
++
++direct_syscall:
++        mov $16,$0
++        mov $17,$16
++        mov $18,$17
++        mov $19,$18
++        mov $20,$19
++        mov $21,$20
++        sys_call 0x83
++        ret
++
++#if defined(__linux__) && defined(__ELF__)
++	.section .note.GNU-stack,"",%progbits
++#endif
+diff -Naur libhugetlbfs-2.23.org/tests/icache-hygiene.c libhugetlbfs-2.23.sw/tests/icache-hygiene.c
+--- libhugetlbfs-2.23.org/tests/icache-hygiene.c	2022-03-14 06:37:11.808814120 +0000
++++ libhugetlbfs-2.23.sw/tests/icache-hygiene.c	2022-03-14 06:42:41.098814120 +0000
+@@ -54,7 +54,7 @@
+ {
+ #if defined(__powerpc__)
+ 	asm volatile("dcbst 0,%0; sync; icbi 0,%0; isync" : : "r"(p));
+-#elif defined(__arm__) || defined(__aarch64__)
++#elif defined(__arm__) || defined(__aarch64__) || defined(__sw_64__)
+ 	__clear_cache(p, p + COPY_SIZE);
+ #endif
+ }
+@@ -88,7 +88,7 @@
+ {
+ #if defined(__powerpc__) || defined(__powerpc64__) || defined(__ia64__) || \
+     defined(__s390__) || defined(__s390x__) || defined(__sparc__) || \
+-    defined(__aarch64__) || (defined(__riscv) && __riscv_xlen == 64)
++    defined(__aarch64__) || defined(__sw_64__) || (defined(__riscv) && __riscv_xlen == 64)
+ 	/* On powerpc, ia64, s390 and Aarch64, 0 bytes are an illegal
+ 	 * instruction, so, if the icache is cleared properly, we SIGILL
+ 	 * as soon as we jump into the cleared page */
+diff -Naur libhugetlbfs-2.23.org/tests/mremap-expand-slice-collision.c libhugetlbfs-2.23.sw/tests/mremap-expand-slice-collision.c
+--- libhugetlbfs-2.23.org/tests/mremap-expand-slice-collision.c	2022-03-14 06:37:11.808814120 +0000
++++ libhugetlbfs-2.23.sw/tests/mremap-expand-slice-collision.c	2022-03-14 06:43:36.328814120 +0000
+@@ -38,7 +38,7 @@
+ 	unsigned long slice_size;
+ 	void *p, *heap;
+ 	int i, rc;
+-#if defined(__LP64__) && !defined(__aarch64__)
++#if defined(__LP64__) && !defined(__aarch64__) && !defined(__sw_64__)
+ 	/* powerpc: 1TB slices starting at 1 TB */
+ 	slice_boundary = 0x10000000000;
+ 	slice_size = 0x10000000000;
