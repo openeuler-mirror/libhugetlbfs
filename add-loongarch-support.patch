@@ -1,0 +1,65 @@
+diff --git a/Makefile b/Makefile
+index 6ab7ae2..7c0ca79 100644
+--- a/Makefile
++++ b/Makefile
+@@ -123,6 +123,12 @@ ELF64 = elf_riscv64
+ TMPLIB64 = lib64
+ CUSTOM_LDSCRIPTS = no
+ else
++ifeq ($(ARCH),loongarch64)
++CC64 = $(CC)
++ELF64 = elf_loongarch
++TMPLIB64 = lib64
++CUSTOM_LDSCRIPTS = no
++else
+ $(error "Unrecognized architecture ($(ARCH))")
+ endif
+ endif
+@@ -137,6 +143,7 @@ endif
+ endif
+ endif
+ endif
++endif
+ 
+ ifdef CC32
+ OBJDIRS += obj32
+diff --git a/sys-elf_loongarch.S b/sys-elf_loongarch.S
+new file mode 100644
+index 0000000..47fde55
+--- /dev/null
++++ b/sys-elf_loongarch.S
+@@ -0,0 +1,20 @@
++/*
++ * libhugetlbfs - direct system call for LoongArch
++ *
++ * Author(s): Wenlong Zhang
++ */
++       .text
++
++       .globl  direct_syscall
++direct_syscall:
++       move    $a7, $a0
++       move    $a0, $a1
++       move    $a1, $a2
++       move    $a2, $a3
++       move    $a3, $a4
++       syscall 0
++       jr      $ra
++
++#if defined(__linux__) && defined(__ELF__)
++       .section .note.GNU-stack,"",%progbits
++#endif
+diff --git a/tests/icache-hygiene.c b/tests/icache-hygiene.c
+index 5b4b8db..98522bb 100644
+--- a/tests/icache-hygiene.c
++++ b/tests/icache-hygiene.c
+@@ -88,7 +88,8 @@ static void sig_handler(int signum, siginfo_t *si, void *uc)
+ {
+ #if defined(__powerpc__) || defined(__powerpc64__) || defined(__ia64__) || \
+     defined(__s390__) || defined(__s390x__) || defined(__sparc__) || \
+-    defined(__aarch64__) || defined(__sw_64__) || (defined(__riscv) && __riscv_xlen == 64)
++    defined(__aarch64__) || defined(__sw_64__) || (defined(__riscv) && __riscv_xlen == 64) || \
++    defined(__loongarch__)
+ 	/* On powerpc, ia64, s390 and Aarch64, 0 bytes are an illegal
+ 	 * instruction, so, if the icache is cleared properly, we SIGILL
+ 	 * as soon as we jump into the cleared page */
